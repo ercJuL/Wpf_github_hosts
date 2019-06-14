@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Wpf_github_hosts.Annotations;
 
 namespace Wpf_github_hosts
 {
@@ -101,6 +103,40 @@ namespace Wpf_github_hosts
 
             public string LocalGuid { get; set; }
             public string Domain { get; set; }
+        }
+
+        public class PingPercentClass : INotifyPropertyChanged
+        {
+            private double _pingPercentData;
+
+            public PingPercentClass(Double pingPercentData)
+            {
+                PingPercentData = pingPercentData;
+            }
+            public double PingPercentData
+            {
+                get => _pingPercentData;
+                set
+                {
+                    _pingPercentData = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PingPercentData"));
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+        }
+
+        private class UpdateDataParams
+        {
+            public UpdateDataParams(string guidLocalKey, string domain, string encode)
+            {
+                GuidLocalKey = guidLocalKey;
+                Domain = domain;
+                Encode = encode;
+            }
+            public string GuidLocalKey { get; set; }
+            public string Domain { get; set; }
+            public string Encode { get; set; }
         }
     }
 }

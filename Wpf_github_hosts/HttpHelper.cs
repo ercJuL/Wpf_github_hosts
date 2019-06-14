@@ -20,22 +20,13 @@ namespace Wpf_github_hosts
             return responeseHtml;
         }
 
-        public static async Task<dynamic> GetPingDataTask(string postUrl, string pathSegment, object formData)
+        public static string GetPingDataTask(string postUrl, string pathSegment, object formData)
         {
-            try
-            {
-                var responseJson = await postUrl.AppendPathSegment(pathSegment).SetQueryParam("t=ping").WithTimeout(10000)
+                var responseJson = postUrl.AppendPathSegment(pathSegment).SetQueryParam("t=ping").WithTimeout(10000)
                     .WithHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36")
                     .PostUrlEncodedAsync(formData)
                     .ReceiveString();
-                return responseJson;
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
-
-            return new { };
+                return responseJson.Result;
         }
     }
 }

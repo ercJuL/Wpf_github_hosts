@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Amib.Threading;
@@ -17,44 +20,50 @@ namespace Wpf_github_hosts
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        public static ObservableCollection<PingData> pingDataList = new ObservableCollection<PingData>();
+        public static ObservableCollection<PingData> PingDataList = new ObservableCollection<PingData>();
         private SmartThreadPool threadPool = new SmartThreadPool();
         private bool isUpdate = false;
+        PingPercentClass pingPercentClass = new PingPercentClass(0);
         public MainWindow()
         {
             InitializeComponent();
-            PingList.ItemsSource = pingDataList;
+            PingList.ItemsSource = PingDataList;
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (isUpdate)
-            {
-                return;
-            }
+            PingProgressBar.Value = 0;
+            start_button.IsEnabled = false;
             threadPool.Cancel();
-            pingDataList.Clear();
-            isUpdate = true;
+            PingDataList.Clear();
             var select_str = ComboDomainBox.Text;
             var result = await HttpHelper.GetHtmlTask($"http://ping.chinaz.com/", select_str, new {host=select_str,linetype="电信,多线,联通,移动,海外"});
             var htmldata = new HtmlSearch(result);
-            foreach (var guidLocalKey in htmldata.GuidLocal.Keys) pingDataList.Add(new PingData(guidLocalKey, htmldata.GuidLocal[guidLocalKey], select_str));
-
+            
+            foreach (var guidLocalKey in htmldata.GuidLocal.Keys) PingDataList.Add(new PingData(guidLocalKey, htmldata.GuidLocal[guidLocalKey], select_str));
+            PingProgressBar.Maximum = PingDataList.Count;
+            PingProgressBar.Visibility = Visibility.Visible;
+            PingTxt.Visibility = Visibility.Visible;
+            List<IWorkItemResult> threadResults = new List<IWorkItemResult>();
+            
             foreach (var guidLocalKey in htmldata.GuidLocal.Keys)
-                threadPool.QueueWorkItem(Updatedata, guidLocalKey, select_str, htmldata.Encode);
-            isUpdate = false;
+                threadResults.Add(threadPool.QueueWorkItem(new WorkItemCallback(UpdateData), new UpdateDataParams(guidLocalKey, select_str, htmldata.Encode)));
+            new Thread(LocalPing).Start();
+            start_button.IsEnabled = true;
         }
 
-        private async void Updatedata(string guidLocalKey, string hosts, string encode)
+        private object UpdateData(object inObject)
         {
-            var changedata = pingDataList.First(u => u.LocalGuid == guidLocalKey);
+            var updateDataParams = inObject as UpdateDataParams;
+            var changedata = PingDataList.First(u => u.LocalGuid == updateDataParams.GuidLocalKey);
+
             changedata.Ip = "loding...";
             changedata.IpLocal = "loding...";
             changedata.AnswerTime = "loding...";
             changedata.AnswerTtl = "loding...";
             try
             {
-                var response = await HttpHelper.GetPingDataTask("http://ping.chinaz.com/", "iframe.ashx", new {guid = guidLocalKey, host = hosts, ishost = 0, encode = encode, checktype = 0});
+                var response = HttpHelper.GetPingDataTask("http://ping.chinaz.com/", "iframe.ashx", new {guid = updateDataParams.GuidLocalKey, host = updateDataParams.Domain, ishost = 0, encode = updateDataParams.Encode, checktype = 0});
                 if (response.Contains("state"))
                 {
                     var jsonStr = Regex.Replace(response, "^\\(", "");
@@ -68,13 +77,8 @@ namespace Wpf_github_hosts
                         changedata.IpLocal = responseJson.result.ipaddress;
                         changedata.AnswerTime = responseJson.result.responsetime.Value.Contains("超时") ? "超时" : responseJson.result.responsetime;
                         changedata.AnswerTtl = responseJson.result.ttl.Value.Contains("超时") ? "超时" : responseJson.result.ttl;
-                        using (var ping = new Ping())
-                        {
-                            changedata.LocalAnswerTime = "loding...";
-                            var pingStatus = ping.Send(responseJson.result.ip.ToString());
-                            changedata.LocalAnswerTime = pingStatus.Status == IPStatus.Success ? pingStatus.RoundtripTime.ToString() : "超时";
-                        }
-                        return;
+                        UpdateDisplay();
+                        return true;
                     }
                 }
             }
@@ -85,10 +89,30 @@ namespace Wpf_github_hosts
             changedata.Ip = "超时";
             changedata.IpLocal = "超时";
             changedata.AnswerTime = "超时";
-            changedata.LocalAnswerTime = "超时";
             changedata.AnswerTtl = "超时";
+            UpdateDisplay();
+            return false;
         }
 
+        private void UpdateDisplay()
+        {
+            PingProgressBar.Invoke(() => PingProgressBar.Value++);
+            PingTxt.Invoke(() => PingTxt.Text = Math.Round((PingProgressBar.Value + 1) * 100 / PingProgressBar.Maximum, 2).ToString(CultureInfo.InvariantCulture) + "%");
+        }
+
+        private void LocalPing()
+        {
+            threadPool.WaitForIdle();
+            var pingList = PingDataList.Select(u => u.Ip).Distinct();
+            using (var ping = new Ping())
+            {
+                foreach (var pingIp in pingList.Where(u=>u!="超时"))
+                {
+                    var pingStatus = ping.Send(pingIp);
+                    PingDataList.Where(u => u.Ip == pingIp).ToList().ForEach(u => u.LocalAnswerTime = pingStatus.RoundtripTime.ToString());
+                }
+            }
+        }
 
         private void PingList_OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -135,7 +159,7 @@ namespace Wpf_github_hosts
             var column = e.OriginalSource as GridViewColumnHeader;
             if (column == null || column.Column == null) return;
             var newPingDataList = new ObservableCollection<PingData>();
-            var pingDataListSort = pingDataList.ToList();
+            var pingDataListSort = PingDataList.ToList();
             switch (column.Column.Header)
             {
                 case "响应时间":
@@ -147,9 +171,9 @@ namespace Wpf_github_hosts
                             return (x.AnswerTime.StartsWith("<")?0: Convert.ToInt32(xMatch.Value))- (y.AnswerTime.StartsWith("<") ? 0 : Convert.ToInt32(yMatch.Value));
                         return Convert.ToInt32(yMatch.Success) - Convert.ToInt32(xMatch.Success);
                     });
-                    pingDataList.Clear();
-                    foreach (var data in pingDataListSort) pingDataList.Add(data);
-                    PingList.ScrollIntoView(pingDataList[0]);
+                    PingDataList.Clear();
+                    foreach (var data in pingDataListSort) PingDataList.Add(data);
+                    PingList.ScrollIntoView(PingDataList[0]);
                     break;
                 case "本地响应时间":
                     pingDataListSort.Sort((x, y) =>
@@ -160,9 +184,9 @@ namespace Wpf_github_hosts
                             return Convert.ToInt32(xMatch.Value) - Convert.ToInt32(yMatch.Value);
                         return Convert.ToInt32(yMatch.Success) - Convert.ToInt32(xMatch.Success);
                     });
-                    pingDataList.Clear();
-                    foreach (var data in pingDataListSort) pingDataList.Add(data);
-                    PingList.ScrollIntoView(pingDataList[0]);
+                    PingDataList.Clear();
+                    foreach (var data in pingDataListSort) PingDataList.Add(data);
+                    PingList.ScrollIntoView(PingDataList[0]);
                     break;
                 case "TTL":
                     pingDataListSort.Sort((x, y) =>
@@ -173,9 +197,9 @@ namespace Wpf_github_hosts
                             return Convert.ToInt32(xMatch.Value) - Convert.ToInt32(yMatch.Value);
                         return Convert.ToInt32(yMatch.Success) - Convert.ToInt32(xMatch.Success);
                     });
-                    pingDataList.Clear();
-                    foreach (var data in pingDataListSort) pingDataList.Add(data);
-                    PingList.ScrollIntoView(pingDataList[0]);
+                    PingDataList.Clear();
+                    foreach (var data in pingDataListSort) PingDataList.Add(data);
+                    PingList.ScrollIntoView(PingDataList[0]);
                     break;
             }
         }
