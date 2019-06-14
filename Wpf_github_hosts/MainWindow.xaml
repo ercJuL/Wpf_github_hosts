@@ -1,0 +1,49 @@
+﻿<Controls:MetroWindow
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:Wpf_github_hosts"
+    xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Wpf_github_hosts.MainWindow"
+    mc:Ignorable="d"
+    Title="Wpf github hosts" Height="450" Width="800"
+    SizeChanged="MainWindow_OnSizeChanged" MinWidth="800" MinHeight="450">
+    <Grid HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="405*" />
+            <RowDefinition Height="14*" />
+        </Grid.RowDefinitions>
+
+        <ListView x:Name="PingList" Loaded="PingList_OnLoaded" Grid.RowSpan="2" Margin="0,41,0,0"
+                  GridViewColumnHeader.Click="Sort_Click" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="监测点" Width="100" DisplayMemberBinding="{Binding LocalName}" />
+                    <GridViewColumn Header="响应IP" Width="200" DisplayMemberBinding="{Binding Ip}" />
+                    <GridViewColumn Header="IP归属地" Width="200" DisplayMemberBinding="{Binding IpLocal}" />
+                    <GridViewColumn Header="响应时间" Width="100" DisplayMemberBinding="{Binding AnswerTime}" />
+                    <GridViewColumn Header="本地响应时间" Width="100" DisplayMemberBinding="{Binding LocalAnswerTime}" />
+                    <GridViewColumn Header="TTL" Width="100" DisplayMemberBinding="{Binding AnswerTtl}" />
+                </GridView>
+            </ListView.View>
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="更新HOSTS" Click="UpdateHostsClick" />
+                    <MenuItem Header="复制ip_domain" Click="CopyIpDomainClick" />
+                    <MenuItem Header="仅复制ip" Click="CopyIpClick" />
+                </ContextMenu>
+            </ListView.ContextMenu>
+        </ListView>
+        <ComboBox x:Name="ComboDomainBox" Margin="136,10,206,0" Height="26" VerticalAlignment="Top" MinWidth="450"
+                  Width="450" IsEditable="True" HorizontalAlignment="Center"
+                  d:LayoutOverrides="VerticalAlignment, Width" SelectedIndex="0">
+            <System:String>github.com</System:String>
+            <System:String>assets-cdn.github.com</System:String>
+            <System:String>github.global.ssl.fastly.net</System:String>
+        </ComboBox>
+        <Button Content="开始测速" Click="Button_Click" Margin="593,10,123,0" Height="26" VerticalAlignment="Top"
+                HorizontalAlignment="Center" Width="76" d:LayoutOverrides="VerticalAlignment" />
+        <Label Content="选择测试域名" HorizontalAlignment="Center" Margin="-620,10,0,0" VerticalAlignment="Top" />
+    </Grid>
+</Controls:MetroWindow>
