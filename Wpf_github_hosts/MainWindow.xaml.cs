@@ -20,19 +20,20 @@ namespace Wpf_github_hosts
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        public static ObservableCollection<PingData> PingDataList = new ObservableCollection<PingData>();
+        private static ObservableCollection<PingData> PingDataList = new ObservableCollection<PingData>();
         private SmartThreadPool threadPool = new SmartThreadPool();
         private bool isUpdate = false;
+        private ProgressBarHelper progressBarHelper = new ProgressBarHelper();
         PingPercentClass pingPercentClass = new PingPercentClass(0);
         public MainWindow()
         {
             InitializeComponent();
             PingList.ItemsSource = PingDataList;
+            PingProgressBar.DataContext = progressBarHelper;
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            PingProgressBar.Value = 0;
             start_button.IsEnabled = false;
             threadPool.Cancel();
             PingDataList.Clear();
@@ -41,9 +42,7 @@ namespace Wpf_github_hosts
             var htmldata = new HtmlSearch(result);
             
             foreach (var guidLocalKey in htmldata.GuidLocal.Keys) PingDataList.Add(new PingData(guidLocalKey, htmldata.GuidLocal[guidLocalKey], select_str));
-            PingProgressBar.Maximum = PingDataList.Count;
-            PingProgressBar.Visibility = Visibility.Visible;
-            PingTxt.Visibility = Visibility.Visible;
+            progressBarHelper.ValueMax = PingDataList.Count;
             List<IWorkItemResult> threadResults = new List<IWorkItemResult>();
             
             foreach (var guidLocalKey in htmldata.GuidLocal.Keys)
@@ -77,7 +76,7 @@ namespace Wpf_github_hosts
                         changedata.IpLocal = responseJson.result.ipaddress;
                         changedata.AnswerTime = responseJson.result.responsetime.Value.Contains("超时") ? "超时" : responseJson.result.responsetime;
                         changedata.AnswerTtl = responseJson.result.ttl.Value.Contains("超时") ? "超时" : responseJson.result.ttl;
-                        UpdateDisplay();
+                        progressBarHelper.Step();
                         return true;
                     }
                 }
@@ -90,14 +89,8 @@ namespace Wpf_github_hosts
             changedata.IpLocal = "超时";
             changedata.AnswerTime = "超时";
             changedata.AnswerTtl = "超时";
-            UpdateDisplay();
+            progressBarHelper.Step();
             return false;
-        }
-
-        private void UpdateDisplay()
-        {
-            PingProgressBar.Invoke(() => PingProgressBar.Value++);
-            PingTxt.Invoke(() => PingTxt.Text = Math.Round((PingProgressBar.Value + 1) * 100 / PingProgressBar.Maximum, 2).ToString(CultureInfo.InvariantCulture) + "%");
         }
 
         private void LocalPing()

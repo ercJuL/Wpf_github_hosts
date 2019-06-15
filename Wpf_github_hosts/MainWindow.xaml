@@ -10,12 +10,25 @@
     Title="Wpf github hosts" Height="450" Width="800"
     SizeChanged="MainWindow_OnSizeChanged" MinWidth="800" MinHeight="450">
     <Grid HorizontalAlignment="Stretch">
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition Height="0*" />
-        </Grid.RowDefinitions>
 
-        <ListView x:Name="PingList" Loaded="PingList_OnLoaded" Margin="0,41,0,0"
+
+        <Label x:Name="test" Content="0" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"
+               Height="25" Width="17" />
+        <Label Grid.Column="1" Content="选择测试域名" HorizontalAlignment="Center" Margin="45,5,665,0"
+               VerticalAlignment="Top" Height="25" Width="82" />
+
+        <ComboBox x:Name="ComboDomainBox" Margin="136,5,206,0" Height="26" VerticalAlignment="Top" MinWidth="450"
+                  Width="450" IsEditable="True" HorizontalAlignment="Center" SelectedIndex="0">
+            <System:String>github.com</System:String>
+            <System:String>assets-cdn.github.com</System:String>
+            <System:String>github.global.ssl.fastly.net</System:String>
+        </ComboBox>
+
+        <Button x:Name="start_button" Content="开始测速" Click="Button_Click" Margin="593,5,123,0" Height="26"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Center" Width="76" />
+
+        <ListView x:Name="PingList" Loaded="PingList_OnLoaded" Margin="0,35,0,0"
                   GridViewColumnHeader.Click="Sort_Click" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListView.View>
                 <GridView>
@@ -36,17 +49,16 @@
             </ListView.ContextMenu>
 
         </ListView>
-        <ComboBox x:Name="ComboDomainBox" Margin="136,10,206,0" Height="26" VerticalAlignment="Top" MinWidth="450"
-                  Width="450" IsEditable="True" HorizontalAlignment="Center" SelectedIndex="0">
-            <System:String>github.com</System:String>
-            <System:String>assets-cdn.github.com</System:String>
-            <System:String>github.global.ssl.fastly.net</System:String>
-        </ComboBox>
-        <Button x:Name="start_button" Content="开始测速" Click="Button_Click" Margin="593,10,123,0" Height="26" VerticalAlignment="Top"
-                HorizontalAlignment="Center" Width="76" />
-        <Label Content="选择测试域名" HorizontalAlignment="Center" Margin="45,10,665,0" VerticalAlignment="Top" Height="25" Width="82" />
-        <ProgressBar x:Name="PingProgressBar" Minimum="0" Height="0" VerticalAlignment="Top" Visibility="Hidden"/>
-        <TextBlock Name="PingTxt" Text="0" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="8" Visibility="Hidden"/>
-        <Label x:Name="test" Content="0" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="25" Width="17"/>
+
+
+        <Grid VerticalAlignment="Bottom" Height="10" Panel.ZIndex="1000">
+            <ProgressBar x:Name="PingProgressBar" Minimum="0" Height="0" VerticalAlignment="Bottom"
+                         Value="{Binding ValueNow}"
+                         Visibility="{Binding Visibility}" />
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Text="{Binding ElementName=PingProgressBar, Path=Value, StringFormat={}{0:#0.00' %'}}"
+                       Visibility="{Binding ElementName=PingProgressBar, Path=Visibility}" />
+        </Grid>
+
     </Grid>
 </Controls:MetroWindow>
