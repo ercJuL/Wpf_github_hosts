@@ -13,7 +13,7 @@
 TODO List
 
 - [x] 同一个ip只次ping
-- [ ] 检测进度显示
+- [x] 检测进度显示
   - 进度条显示 :white_check_mark:
   - 进度条精确显示:persevere:
 - [ ] hosts管理

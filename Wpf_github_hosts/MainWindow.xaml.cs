@@ -30,6 +30,8 @@ namespace Wpf_github_hosts
             InitializeComponent();
             PingList.ItemsSource = PingDataList;
             PingProgressBar.DataContext = progressBarHelper;
+            var hostsManagerWindow = new HostsManagerWindow();
+            hostsManagerWindow.Show();
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
@@ -112,12 +114,12 @@ namespace Wpf_github_hosts
             //使listview根据内容自动调整宽度
             if (PingList.View is GridView gv)
             {
-                gv.Columns[0].Width = (int) (0.125 * PingList.ActualWidth);
-                gv.Columns[1].Width = (int) (0.25 * PingList.ActualWidth);
-                gv.Columns[2].Width = (int) (0.25 * PingList.ActualWidth);
-                gv.Columns[3].Width = (int) (0.125 * PingList.ActualWidth);
-                gv.Columns[4].Width = (int) (0.125 * PingList.ActualWidth);
-                gv.Columns[5].Width = (int) (0.125 * PingList.ActualWidth);
+                gv.Columns[0].Width = (int) (0.16 * PingList.ActualWidth);
+                gv.Columns[1].Width = (int) (0.2 * PingList.ActualWidth);
+                gv.Columns[2].Width = (int) (0.2 * PingList.ActualWidth);
+                gv.Columns[3].Width = (int) (0.16 * PingList.ActualWidth);
+                gv.Columns[4].Width = (int) (0.16 * PingList.ActualWidth);
+                gv.Columns[5].Width = (int) (0.12 * PingList.ActualWidth);
             }
         }
 
@@ -147,8 +149,12 @@ namespace Wpf_github_hosts
             Hosts.updateHosts(hostsData);
         }
 
-        private void Sort_Click(object sender, RoutedEventArgs e)
+        private async void Sort_Click(object sender, RoutedEventArgs e)
         {
+            if (PingDataList.Count < 1)
+            {
+                return;
+            }
             var column = e.OriginalSource as GridViewColumnHeader;
             if (column == null || column.Column == null) return;
             var newPingDataList = new ObservableCollection<PingData>();
@@ -195,6 +201,11 @@ namespace Wpf_github_hosts
                     PingList.ScrollIntoView(PingDataList[0]);
                     break;
             }
+        }
+
+        private async void DebugInfo_OnClick(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }
