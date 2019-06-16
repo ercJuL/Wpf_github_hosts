@@ -10,16 +10,15 @@
         TextElement.FontSize="14"
         FontFamily="SimHei"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:expressions="clr-namespace:System.Linq.Expressions;assembly=System.Core"
         mc:Ignorable="d"
         Title="HostsManagerWindow" Height="450" Width="400">
     <Grid>
-        <DataGrid>
+        <DataGrid x:Name="PingDataGrid" AutoGenerateColumns="False" MouseDoubleClick="PingDataGrid_OnMouseDoubleClick" CellEditEnding="PingDataGrid_OnCellEditEnding">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="IP" Binding="{Binding Ip}"/>
                 <DataGridTextColumn Header="Domain" Binding="{Binding Domain}"/>
-                <DataGridTemplateColumn Header="DataGridTemplateColumn"/>
-                <DataGridCheckBoxColumn Header="DataGridCheckBoxColumn"/>
-                <DataGridComboBoxColumn Header="DataGridComboBoxColumn"/>
+                <DataGridTextColumn Header="状态"  Binding="{Binding State}" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
 

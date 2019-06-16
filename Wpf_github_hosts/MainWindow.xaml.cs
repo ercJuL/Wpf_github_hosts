@@ -25,9 +25,11 @@ namespace Wpf_github_hosts
         private bool isUpdate = false;
         private ProgressBarHelper progressBarHelper = new ProgressBarHelper();
         PingPercentClass pingPercentClass = new PingPercentClass(0);
+        private LogHelper logHelper = new LogHelper();
         public MainWindow()
         {
             InitializeComponent();
+            logHelper.LableComponent = DebugInfoTxt;
             PingList.ItemsSource = PingDataList;
             PingProgressBar.DataContext = progressBarHelper;
             var hostsManagerWindow = new HostsManagerWindow();
@@ -205,7 +207,7 @@ namespace Wpf_github_hosts
 
         private async void DebugInfo_OnClick(object sender, RoutedEventArgs e)
         {
-            
+            logHelper.UpdateLog("click", LogHelper.InfoLevel.Info);
         }
     }
 }

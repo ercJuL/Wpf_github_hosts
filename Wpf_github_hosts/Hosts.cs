@@ -9,27 +9,13 @@ namespace Wpf_github_hosts
 {
     public class Hosts
     {
+
+        public static string HostsPath = @"C:\WINDOWS\system32\drivers\etc\hosts";
+        private static Encoding _encoding;
         public static void updateHosts(string data)
         {
-            var path = @"C:\WINDOWS\system32\drivers\etc\hosts";
             //通常情况下这个文件是只读的，所以写入之前要取消只读
-            File.SetAttributes(path, File.GetAttributes(path) & ~FileAttributes.ReadOnly); //取消只读
-            var fileList = new List<string>();
-            var encode = Encoding.UTF8;
-            using (var file = File.OpenRead(path))
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                encode = GetType(fs);
-                using (var stream = new StreamReader(file, encode))
-                {
-                    while (!stream.EndOfStream)
-                    {
-                        var line = stream.ReadLine();
-                        if (!string.IsNullOrWhiteSpace(line))
-                            fileList.Add(line);
-                    }
-                }
-            }
+            var fileList = ReadHosts();
 
             var fileListData = fileList.FirstOrDefault(u => Regex.IsMatch(u, $" {data.Split(' ').Last()}"));
             if (!(fileListData is null))
@@ -38,12 +24,46 @@ namespace Wpf_github_hosts
             fileList.Add(data);
 
 
-            using (var file = File.OpenWrite(path))
-            using (var stream = new StreamWriter(file, encode))
+            using (var file = File.OpenWrite(HostsPath))
+            using (var stream = new StreamWriter(file, Encoding))
             {
                 foreach (var line in fileList) stream.WriteLine(line);
             }
         }
+
+        public static List<string> ReadHosts()
+        {
+            var encode = Encoding;
+            var fileList = new List<string>();
+            using (var file = File.OpenRead(HostsPath))
+            using (var stream = new StreamReader(file, encode))
+            {
+                while (!stream.EndOfStream)
+                {
+                    var line = stream.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(line))
+                        fileList.Add(line);
+                }
+            }
+
+            return fileList;
+        }
+
+        private static Encoding Encoding
+        {
+            get
+            {
+                if (_encoding is null)
+                {
+                    File.SetAttributes(HostsPath, File.GetAttributes(HostsPath) & ~FileAttributes.ReadOnly); //取消只读
+                    using (var fs = new FileStream(HostsPath, FileMode.Open, FileAccess.Read))
+                        _encoding = GetType(fs);
+                }
+                return _encoding;
+            }
+        }
+
+        
 
         /// <summary>
         ///     通过给定的文件流，判断文件的编码类型
