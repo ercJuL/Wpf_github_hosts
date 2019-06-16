@@ -14,67 +14,77 @@
     mc:Ignorable="d"
     SizeChanged="MainWindow_OnSizeChanged" MinWidth="750" MinHeight="450">
     <Grid HorizontalAlignment="Stretch">
+        <Grid>
 
 
-        <Grid Margin="0,0,0,0" Height="28" VerticalAlignment="Top">
-            <Label Content="选择测试域名" HorizontalAlignment="Left"
-                   VerticalAlignment="Top" Height="28" />
+            <Grid Margin="0,0,0,0" Height="28" VerticalAlignment="Top">
+                <Label Content="选择测试域名" HorizontalAlignment="Left"
+                    VerticalAlignment="Top" Height="28" />
 
-            <ComboBox x:Name="ComboDomainBox" Margin="110,-1,0,0" VerticalAlignment="Top" MinWidth="300"
-                      IsEditable="True" HorizontalAlignment="Left" SelectedIndex="0" Height="28">
-                <System:String>github.com</System:String>
-                <System:String>assets-cdn.github.com</System:String>
-                <System:String>github.global.ssl.fastly.net</System:String>
-            </ComboBox>
+                <ComboBox x:Name="ComboDomainBox" Margin="110,-1,0,0" VerticalAlignment="Top" MinWidth="300"
+                    IsEditable="True" HorizontalAlignment="Left" SelectedIndex="0" Height="28">
+                    <System:String>github.com</System:String>
+                    <System:String>assets-cdn.github.com</System:String>
+                    <System:String>github.global.ssl.fastly.net</System:String>
+                </ComboBox>
 
-            <Button x:Name="start_button" Content="开始测速" Click="Button_Click" Height="28"
+                <Button x:Name="start_button" Content="开始测速" Click="Button_Click" Height="28"
                     VerticalAlignment="Top"
                     HorizontalAlignment="Left" Width="100" Margin="430,0,0,0" />
-            <Grid ButtonBase.Click="DebugInfo_OnClick" Margin="535,0,0,0">
-                <Label x:Name="DebugInfoTxt" Content="debug info" Margin="0,0,25,0" MouseDoubleClick="DebugInfo_OnClick"/>
-                <Button HorizontalAlignment="Right" Click="DebugInfo_OnClick">
-                    <Canvas Width="24" Height="24">
-                        <Path
-                            Data="M14,12H10V10H14M14,16H10V14H14M20,8H17.19C16.74,7.22 16.12,6.55 15.37,6.04L17,4.41L15.59,3L13.42,5.17C12.96,5.06 12.5,5 12,5C11.5,5 11.04,5.06 10.59,5.17L8.41,3L7,4.41L8.62,6.04C7.88,6.55 7.26,7.22 6.81,8H4V10H6.09C6.04,10.33 6,10.66 6,11V12H4V14H6V15C6,15.34 6.04,15.67 6.09,16H4V18H6.81C7.85,19.79 9.78,21 12,21C14.22,21 16.15,19.79 17.19,18H20V16H17.91C17.96,15.67 18,15.34 18,15V14H20V12H18V11C18,10.66 17.96,10.33 17.91,10H20V8Z"
-                            Fill="Black" />
-                    </Canvas>
-                </Button>
-                
+                <TextBlock x:Name="DebugInfoTxt" Text="debug info" VerticalAlignment="Top" FontSize="8" FontStyle="Italic" Margin="535,10,100,0" TextAlignment="Right" TextTrimming="CharacterEllipsis"/>
+                <Button x:Name="hostsManagerButton" Content="Hosts管理" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,0" Click="HostsManagerButton_OnClick"/>
             </Grid>
+            <Grid VerticalAlignment="Bottom" Height="10" Panel.ZIndex="1000">
+                <Controls:MetroProgressBar x:Name="PingProgressBar" Minimum="0" Height="0" VerticalAlignment="Bottom"
+                    Value="{Binding ValueNow}"
+                    Visibility="{Binding Visibility}" >
+                    <Controls:MetroProgressBar.Background>
+                        <SolidColorBrush Color="#1F0023FF"/>
+                    </Controls:MetroProgressBar.Background>
+                </Controls:MetroProgressBar>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Text="{Binding Value, ElementName=PingProgressBar, StringFormat=\{0:#0.00\' %\'\}}"
+                    Visibility="{Binding Visibility, ElementName=PingProgressBar}" Foreground="#DDFF0000" />
+            </Grid>
+            <ListView x:Name="PingList" Loaded="PingList_OnLoaded" Margin="0,30,0,0"
+                ButtonBase.Click="Sort_Click" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="监测点" Width="100" DisplayMemberBinding="{Binding LocalName}" />
+                        <GridViewColumn Header="响应IP" Width="150" DisplayMemberBinding="{Binding Ip}" />
+                        <GridViewColumn Header="IP归属地" Width="150" DisplayMemberBinding="{Binding IpLocal}" />
+                        <GridViewColumn Header="响应时间" Width="100" DisplayMemberBinding="{Binding AnswerTime}" />
+                        <GridViewColumn Header="本地响应时间" Width="120" DisplayMemberBinding="{Binding LocalAnswerTime}" />
+                        <GridViewColumn Header="TTL" Width="130" DisplayMemberBinding="{Binding AnswerTtl}" />
+                    </GridView>
+                </ListView.View>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="更新HOSTS" Click="UpdateHostsClick" />
+                        <MenuItem Header="复制ip_domain" Click="CopyIpDomainClick" />
+                        <MenuItem Header="仅复制ip" Click="CopyIpClick" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
+
+            </ListView>
+
         </Grid>
-
-        <ListView x:Name="PingList" Loaded="PingList_OnLoaded" Margin="0,30,0,0"
-                  ButtonBase.Click="Sort_Click" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="监测点" Width="100" DisplayMemberBinding="{Binding LocalName}" />
-                    <GridViewColumn Header="响应IP" Width="150" DisplayMemberBinding="{Binding Ip}" />
-                    <GridViewColumn Header="IP归属地" Width="150" DisplayMemberBinding="{Binding IpLocal}" />
-                    <GridViewColumn Header="响应时间" Width="100" DisplayMemberBinding="{Binding AnswerTime}" />
-                    <GridViewColumn Header="本地响应时间" Width="120" DisplayMemberBinding="{Binding LocalAnswerTime}" />
-                    <GridViewColumn Header="TTL" Width="130" DisplayMemberBinding="{Binding AnswerTtl}" />
-                </GridView>
-            </ListView.View>
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="更新HOSTS" Click="UpdateHostsClick" />
-                    <MenuItem Header="复制ip_domain" Click="CopyIpDomainClick" />
-                    <MenuItem Header="仅复制ip" Click="CopyIpClick" />
-                </ContextMenu>
-            </ListView.ContextMenu>
-
-        </ListView>
+        <Grid x:Name="HostsManager" Visibility="Hidden" Panel.ZIndex="100">
+            <Button x:Name="HostMangerClose" HorizontalAlignment="Right" Margin="0" Height="Auto" Panel.ZIndex="101" VerticalAlignment="Top" Click="HostMangerClose_Click">
+                <Canvas Width="24" Height="24">
+                    <Path Data="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2C6.47,2 2,6.47 2,12C2,17.53 6.47,22 12,22C17.53,22 22,17.53 22,12C22,6.47 17.53,2 12,2M14.59,8L12,10.59L9.41,8L8,9.41L10.59,12L8,14.59L9.41,16L12,13.41L14.59,16L16,14.59L13.41,12L16,9.41L14.59,8Z" Fill="Black" />
+                </Canvas>
+            </Button>
+            <DataGrid x:Name="HostsDataGrid" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" ColumnWidth="*"
+                      MouseDoubleClick="HostsDataGrid_OnMouseDoubleClick" CellEditEnding="HostsDataGrid_OnCellEditEnding">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="IP" Binding="{Binding Ip}"/>
+                    <DataGridTextColumn Header="Domain" Binding="{Binding Domain}"/>
+                    <DataGridTextColumn Header="状态"  Binding="{Binding State}" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
 
 
-        <Grid VerticalAlignment="Bottom" Height="10" Panel.ZIndex="1000">
-            <ProgressBar x:Name="PingProgressBar" Minimum="0" Height="0" VerticalAlignment="Bottom"
-                         Value="{Binding ValueNow}"
-                         Visibility="{Binding Visibility}" />
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Text="{Binding Value, ElementName=PingProgressBar, StringFormat=\{0:#0.00\' %\'\}}"
-                       Visibility="{Binding Visibility, ElementName=PingProgressBar}" />
         </Grid>
-        <ToggleButton Content="切换界面" Margin="311.333,-28,260.666,0" VerticalAlignment="Top" FontSize="8" Height="28"/>
-
     </Grid>
 </Controls:MetroWindow>

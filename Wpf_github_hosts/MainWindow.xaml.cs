@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -9,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Amib.Threading;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json.Linq;
@@ -25,30 +27,40 @@ namespace Wpf_github_hosts
         private bool isUpdate = false;
         private ProgressBarHelper progressBarHelper = new ProgressBarHelper();
         PingPercentClass pingPercentClass = new PingPercentClass(0);
-        private LogHelper logHelper = new LogHelper();
+        private static ObservableCollection<HostsData> hostsDatas = new ObservableCollection<HostsData>();
         public MainWindow()
         {
             InitializeComponent();
-            logHelper.LableComponent = DebugInfoTxt;
+            LogHelper.LableComponent = DebugInfoTxt;
             PingList.ItemsSource = PingDataList;
             PingProgressBar.DataContext = progressBarHelper;
-            var hostsManagerWindow = new HostsManagerWindow();
-            hostsManagerWindow.Show();
+            
+            HostsDataGrid.ItemsSource = hostsDatas;
+            LogHelper.UpdateLog("欢迎使用~");
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             start_button.IsEnabled = false;
+            LogHelper.UpdateLog("等待结束前置任务");
             threadPool.Cancel();
             PingDataList.Clear();
             var select_str = ComboDomainBox.Text;
+            LogHelper.UpdateLog("获取远程ip.....");
             var result = await HttpHelper.GetHtmlTask($"http://ping.chinaz.com/", select_str, new {host=select_str,linetype="电信,多线,联通,移动,海外"});
             var htmldata = new HtmlSearch(result);
+            if (String.IsNullOrWhiteSpace(htmldata.Encode))
+            {
+                LogHelper.UpdateLog("获取远程ip出错，稍后再试");
+                start_button.IsEnabled = true;
+                return;
+            }
             
             foreach (var guidLocalKey in htmldata.GuidLocal.Keys) PingDataList.Add(new PingData(guidLocalKey, htmldata.GuidLocal[guidLocalKey], select_str));
             progressBarHelper.ValueMax = PingDataList.Count;
+
             List<IWorkItemResult> threadResults = new List<IWorkItemResult>();
-            
+            LogHelper.UpdateLog("获取远程ping结果");
             foreach (var guidLocalKey in htmldata.GuidLocal.Keys)
                 threadResults.Add(threadPool.QueueWorkItem(new WorkItemCallback(UpdateData), new UpdateDataParams(guidLocalKey, select_str, htmldata.Encode)));
             new Thread(LocalPing).Start();
@@ -205,9 +217,101 @@ namespace Wpf_github_hosts
             }
         }
 
-        private async void DebugInfo_OnClick(object sender, RoutedEventArgs e)
+        private void HostsManagerButton_OnClick(object sender, RoutedEventArgs e)
         {
-            logHelper.UpdateLog("click", LogHelper.InfoLevel.Info);
+            InitHostsData();
+            HostsManager.Visibility = Visibility.Visible;
+        }
+        public async void InitHostsData()
+        {
+            var HostsLines = Hosts.ReadHosts();
+            foreach (var line in HostsLines)
+            {
+                var lineTrim = line.Trim();
+                if (Regex.IsMatch(lineTrim, "\\d+\\.\\d+\\.\\d+\\.\\d+[ \\t]{1,}[\\.\\w]+$"))
+                {
+                    hostsDatas.Add(new HostsData()
+                    {
+                        Ip = Regex.Match(lineTrim, "\\d+\\.\\d+\\.\\d+\\.\\d+").Value,
+                        Domain = lineTrim.Split(' ').Last(),
+                        State = line.StartsWith("#") ? "失效" : "激活"
+                    });
+                }
+            }
+        }
+
+        public class HostsData : INotifyPropertyChanged
+        {
+            private string _ip;
+            private string _domain;
+            private string _state;
+
+            public string Ip
+            {
+                get => _ip;
+                set
+                {
+                    _ip = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Ip"));
+                }
+            }
+
+            public string Domain
+            {
+                get => _domain;
+                set
+                {
+                    _domain = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Domain"));
+                }
+            }
+
+            public string State
+            {
+                get => _state;
+                set
+                {
+                    _state = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("State"));
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+        }
+
+        private void HostsDataGrid_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGrid datagrid = sender as DataGrid;
+            var cell = datagrid.CurrentCell;
+            var item = cell.Item as HostsData;
+
+            if (item != null && cell.Column.DisplayIndex == 2)
+            {
+                item.State = item.State == "激活" ? "失效" : "激活";
+                var hostsTxt = (item.State == "激活" ? "" : "#") + item.Ip + " " + item.Domain;
+                Hosts.updateHosts(hostsTxt);
+            }
+        }
+
+        private void HostsDataGrid_OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            string newValue = (e.EditingElement as TextBox).Text;
+            var item = e.Row.Item as HostsData;
+            if (Regex.IsMatch(newValue, "\\d+\\.\\d+\\.\\d+\\.\\d+"))
+            {
+                var hostsTxt = (item.State == "激活" ? "" : "#") + newValue + " " + item.Domain;
+                Hosts.updateHosts(hostsTxt);
+            }
+            else if (Regex.IsMatch(newValue, "[\\.\\w]+"))
+            {
+                var hostsTxt = (item.State == "激活" ? "" : "#") + item.Ip + " " + newValue;
+                Hosts.updateHosts(hostsTxt);
+            }
+        }
+
+        private void HostMangerClose_Click(object sender, RoutedEventArgs e)
+        {
+            HostsManager.Visibility = Visibility.Hidden;
         }
     }
 }
