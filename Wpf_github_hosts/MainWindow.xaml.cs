@@ -226,6 +226,7 @@ namespace Wpf_github_hosts
         public async void InitHostsData()
         {
             var HostsLines = Hosts.ReadHosts();
+            hostsDatas.Clear();
             foreach (var line in HostsLines)
             {
                 var lineTrim = line.Trim();
