@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
 
 namespace Wpf_github_hosts
 {
@@ -55,9 +56,18 @@ namespace Wpf_github_hosts
             {
                 if (_encoding is null)
                 {
-                    File.SetAttributes(HostsPath, File.GetAttributes(HostsPath) & ~FileAttributes.ReadOnly); //取消只读
-                    using (var fs = new FileStream(HostsPath, FileMode.Open, FileAccess.Read))
-                        _encoding = GetType(fs);
+                    try
+                    {
+                        File.SetAttributes(HostsPath, File.GetAttributes(HostsPath) & ~FileAttributes.ReadOnly); //取消只读
+                        using (var fs = new FileStream(HostsPath, FileMode.Open, FileAccess.Read))
+                            _encoding = GetType(fs);
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show("权限不足，请使用管理员权限打开");
+                        throw;
+                    }
+                    
                 }
                 return _encoding;
             }

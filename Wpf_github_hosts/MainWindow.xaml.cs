@@ -37,6 +37,7 @@ namespace Wpf_github_hosts
             
             HostsDataGrid.ItemsSource = hostsDatas;
             LogHelper.UpdateLog("欢迎使用~");
+            MessageBox.Show("如果要使用本软件修改hosts请使用管理员权限打开");
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
