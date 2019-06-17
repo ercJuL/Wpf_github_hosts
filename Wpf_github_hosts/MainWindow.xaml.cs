@@ -119,7 +119,7 @@ namespace Wpf_github_hosts
                 foreach (var pingIp in pingList.Where(u=>u!="超时"))
                 {
                     var pingStatus = ping.Send(pingIp);
-                    PingDataList.Where(u => u.Ip == pingIp).ToList().ForEach(u => u.LocalAnswerTime = pingStatus.RoundtripTime.ToString());
+                    PingDataList.Where(u => u.Ip == pingIp).ToList().ForEach(u => u.LocalAnswerTime = pingStatus.Status == IPStatus.Success? pingStatus.RoundtripTime.ToString():"超时");
                 }
             }
         }
