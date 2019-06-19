@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace MaterialDesignDemo
+namespace WPF_Best_Hosts
 {
     public static class XamlDisplayEx
     {

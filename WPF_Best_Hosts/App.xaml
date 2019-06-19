@@ -7,7 +7,6 @@
              xmlns:smtxAe="clr-namespace:ShowMeTheXAML.AvalonEdit;assembly=ShowMeTheXAML.AvalonEdit"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:WPF_Best_Hosts"
-             xmlns:materialDesignDemo="clr-namespace:MaterialDesignDemo"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -33,7 +32,7 @@
             </Style.Resources>
             <Setter Property="VerticalContentAlignment" Value="Bottom" />
             <Setter Property="HorizontalContentAlignment" Value="Right" />
-            <Setter Property="materialDesignDemo:XamlDisplayEx.ButtonDock" Value="Right" />
+            <Setter Property="local:XamlDisplayEx.ButtonDock" Value="Right" />
             <Setter Property="Formatter">
                 <Setter.Value>
                     <smtx:XamlFormatter NewLineOnAttributes="True" Indent="  ">
