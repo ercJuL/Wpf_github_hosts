@@ -82,6 +82,8 @@
     <Compile Include="Domain\DocumentationLinkType.cs" />
     <Compile Include="Domain\MainWindowViewModel.cs" />
     <Compile Include="Domain\NotifyPropertyChangedExtension.cs" />
+    <Compile Include="Lib\Hosts.cs" />
+    <Compile Include="Model\HostsData.cs" />
     <Compile Include="View\Home.xaml.cs">
       <DependentUpon>Home.xaml</DependentUpon>
     </Compile>

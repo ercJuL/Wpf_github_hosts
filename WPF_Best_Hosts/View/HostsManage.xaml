@@ -8,6 +8,13 @@
       d:DesignHeight="450" d:DesignWidth="800">
 
     <Grid>
-        <TextBlock Text="这里将会是hosts管理" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="80"></TextBlock>
+        <DataGrid x:Name="HostsDataGrid" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" ColumnWidth="*" CanUserAddRows="False"
+                  MouseDoubleClick="HostsDataGrid_OnMouseDoubleClick" CellEditEnding="HostsDataGrid_OnCellEditEnding">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="IP" Binding="{Binding Ip}"/>
+                <DataGridTextColumn Header="Domain" Binding="{Binding Domain}"/>
+                <DataGridTextColumn Header="状态"  Binding="{Binding State}" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </UserControl>
