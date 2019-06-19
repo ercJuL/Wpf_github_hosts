@@ -14,7 +14,17 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{StaticResource MaterialDesignFont}" Icon="favicon.ico">
+        FontFamily="{StaticResource MaterialDesignFont}" Icon="favicon.ico"
+        MouseLeftButtonDown="OnMouseLeftButtonDown" 
+        MouseMove="OnMouseMove"
+        ResizeMode="CanResize"  
+        StateChanged="Window_StateChanged" 
+        AllowsTransparency="True" 
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen">
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0"  ResizeBorderThickness="10" CaptionHeight="0" CornerRadius="0" />
+    </WindowChrome.WindowChrome>
     <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
         <materialDesign:DrawerHost.LeftDrawerContent>
             <DockPanel MinWidth="212">
@@ -40,15 +50,13 @@
 
                     <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}" IsChecked="False"
                                         x:Name="MenuToggleButton"/>
-                    <!-- <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False"> -->
-                    <!--     <StackPanel> -->
-                    <!--         <Button Content="Hello World" Click="MenuPopupButton_OnClick"/> -->
-                    <!--         <Button Content="Nice Popup" Click="MenuPopupButton_OnClick"/> -->
-                    <!--         <Button Content="Can't Touch This" IsEnabled="False" /> -->
-                    <!--         <Separator/> -->
-                    <!--         <Button Content="Goodbye" Click="MenuPopupButton_OnClick"/> -->
-                    <!--     </StackPanel> -->
-                    <!-- </materialDesign:PopupBox> -->
+                    <Button x:Name="CloseButton" DockPanel.Dock="Right" Click="CloseButton_OnClick"
+                        ToolTip="关闭窗口" Background="{x:Null}" BorderBrush="{x:Null}">
+                        <materialDesign:PackIcon
+                            Kind="WindowClose"
+                            Height="30"
+                            Width="24" />
+                    </Button>
                     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22">最快节点测试工具</TextBlock>
                 </DockPanel>
             </materialDesign:ColorZone>

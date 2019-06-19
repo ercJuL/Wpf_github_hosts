@@ -4,9 +4,53 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WPF_Best_Hosts.View"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
+             xmlns:conver="clr-namespace:WPF_Best_Hosts.Converter"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <conver:InverseBoolConvert x:Key="InverseBoolConvert"/>
+    </UserControl.Resources>
     <Grid>
-        <TextBlock Text="这里将会是iptest" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="96"></TextBlock>
+        <Label Content="选择测试域名" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Margin="0 3 0 0" />
+        <ComboBox x:Name="ComboDomainBox" VerticalAlignment="Top" MinWidth="300" IsEditable="True" HorizontalAlignment="Left" SelectedIndex="0" Height="28" Margin="87,0,0,0"
+                  materialDesign:ComboBoxAssist.ShowSelectedItem="False">
+            <system:String>github.com</system:String>
+            <system:String>assets-cdn.github.com</system:String>
+            <system:String>github.global.ssl.fastly.net</system:String>
+        </ComboBox>
+        <Button x:Name="PingButton" Content="开始测速"  Height="28" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="392,0,0,0"
+                Click="PingButton_OnClick"
+                Style="{StaticResource MaterialDesignRaisedButton}"
+    materialDesign:ButtonProgressAssist.Value="-1"
+    materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding ElementName=PingButton, Path=IsEnabled, Converter={StaticResource InverseBoolConvert}}"
+    materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding ElementName=PingButton, Path=IsEnabled, Converter={StaticResource InverseBoolConvert}}"/>
+        <DataGrid x:Name="PingDataGrid"  Margin="0,30,0,0" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" ColumnWidth="*" CanUserAddRows="False" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="监测点" Binding="{Binding LocalName}" />
+                <DataGridTextColumn Header="响应IP" Binding="{Binding Ip}" />
+                <DataGridTextColumn Header="IP归属地" Binding="{Binding IpLocal}" />
+                <DataGridTextColumn Header="响应时间" Binding="{Binding AnswerTime}" />
+                <DataGridTextColumn Header="本地响应时间" Binding="{Binding LocalAnswerTime}" />
+                <DataGridTextColumn Header="TTL" Binding="{Binding AnswerTtl}" />
+            </DataGrid.Columns>
+            <DataGrid.ContextMenu>
+                <ContextMenu StaysOpen="true">
+                    <MenuItem Header="更新 HOSTS" Click="UpdateHostsClick" />
+                    <MenuItem Header="复制 IP_域名" Click="CopyIpDomainClick" />
+                    <MenuItem Header="仅复制 IP" Click="CopyIpClick" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <!--<ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="更新HOSTS" />
+                    <MenuItem Header="复制ip_domain" />
+                    <MenuItem Header="仅复制ip"  />
+                </ContextMenu>
+            </ListView.ContextMenu>-->
+
+        </DataGrid>
+
     </Grid>
 </UserControl>
