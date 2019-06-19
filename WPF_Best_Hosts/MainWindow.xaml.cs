@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +14,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MaterialDesignThemes.Wpf;
+using WPF_Best_Hosts.Domain;
 
 namespace WPF_Best_Hosts
 {
@@ -21,9 +24,21 @@ namespace WPF_Best_Hosts
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static Snackbar Snackbar;
         public MainWindow()
         {
             InitializeComponent();
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(2500);
+            }).ContinueWith(t =>
+            {
+                MainSnackbar.MessageQueue.Enqueue("欢迎使用");
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+
+            DataContext = new MainWindowViewModel(MainSnackbar.MessageQueue);
+
+            Snackbar = this.MainSnackbar;
         }
 
         private void UIElement_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
