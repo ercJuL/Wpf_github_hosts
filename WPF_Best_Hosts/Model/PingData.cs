@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using WPF_Best_Hosts.Lib;
 
 namespace WPF_Best_Hosts.Model
 {
@@ -17,6 +18,9 @@ namespace WPF_Best_Hosts.Model
         private string _localAnswerTime;
         private string _answerTtl;
         private string _localAnswerTtl;
+        private int _timeConsume;
+        private int _dSize;
+        private string _tcpIpResult;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public PingData()
@@ -97,6 +101,39 @@ namespace WPF_Best_Hosts.Model
             {
                 _localAnswerTtl = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalAnswerTtl"));
+            }
+        }
+
+        public string TcpIpResult
+        {
+            get => $"{Utils.HumanReadableByteCount(DSize / TimeConsume * 1000, false)}/s";
+            set => _tcpIpResult = value;
+        }
+
+        public string TcpIpResultTip => $"下载{Utils.HumanReadableByteCount(DSize, false)}\n共耗时{TimeConsume}毫秒";
+            public int TimeConsume
+        {
+            get => _timeConsume;
+            set
+            {
+                _timeConsume = value;
+                if (_dSize > 0)
+                {
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TcpIpResult"));
+                }
+            }
+        }
+
+        public int DSize
+        {
+            get => _dSize;
+            set
+            {
+                _dSize = value;
+                if (_timeConsume > 0)
+                {
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TcpIpResult"));
+                }
             }
         }
 

@@ -16,6 +16,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
 using WPF_Best_Hosts.Domain;
+using Flurl;
+using Flurl.Http;
 
 namespace WPF_Best_Hosts
 {
@@ -41,6 +43,14 @@ namespace WPF_Best_Hosts
             DataContext = new MainWindowViewModel(MainSnackbar.MessageQueue);
 
             Snackbar = this.MainSnackbar;
+
+            var start = DateTime.UtcNow;
+            var test = $"http://192.30.253.113".WithHeaders(new
+            {
+                User_Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
+                Host = "github.com"
+            }).GetStringAsync();
+            var test2 = test.Result;
         }
 
         private void UIElement_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)

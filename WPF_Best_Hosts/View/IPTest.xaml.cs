@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -38,7 +40,7 @@ namespace WPF_Best_Hosts.View
 
         private async void PingButton_OnClick(object sender, RoutedEventArgs e)
         {
-            await Task.Factory.StartNew(PingButton_OnClick_invoke);
+            await Task.Run(PingButton_OnClick_invoke);
         }
 
         private void test(bool t)
@@ -73,7 +75,7 @@ namespace WPF_Best_Hosts.View
             foreach (var guidLocalKey in htmldata.GuidLocal.Keys)
                 threadResults.Add(threadPool.QueueWorkItem(new WorkItemCallback(UpdateData), new UpdateDataParams(guidLocalKey, select_str, htmldata.Encode)));
             SmartThreadPool.WaitAll(threadResults.ToArray());
-            Task.Factory.StartNew(LocalPing);
+            Task.Run(() => LocalTest(select_str));
             this.Dispatcher.Invoke(() => PingButton.IsEnabled = true);
             //            PingButton.IsEnabled = true;
         }
@@ -119,7 +121,7 @@ namespace WPF_Best_Hosts.View
             return false;
         }
 
-        private void LocalPing()
+        private void LocalTest(string host)
         {
             threadPool.WaitForIdle();
             var pingList = PingDataList.Select(u => u.Ip).Distinct();
@@ -128,7 +130,14 @@ namespace WPF_Best_Hosts.View
                 foreach (var pingIp in pingList.Where(u => u != "超时"))
                 {
                     var pingStatus = ping.Send(pingIp);
-                    PingDataList.Where(u => u.Ip == pingIp).ToList().ForEach(u => u.LocalAnswerTime = pingStatus.Status == IPStatus.Success ? pingStatus.RoundtripTime.ToString() : "超时");
+                    HttpHelper.TcpIpTest(pingIp, host, out var timeConsume, out var dSize);
+                    PingDataList.Where(u => u.Ip == pingIp).ToList().ForEach(u =>
+                    {
+                        u.LocalAnswerTime = pingStatus.Status == IPStatus.Success ? pingStatus.RoundtripTime.ToString() : "超时";
+                        u.TimeConsume = timeConsume;
+                        u.DSize = dSize;
+
+                    });
                 }
             }
         }

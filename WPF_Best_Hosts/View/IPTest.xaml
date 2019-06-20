@@ -26,14 +26,58 @@
     materialDesign:ButtonProgressAssist.Value="-1"
     materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding ElementName=PingButton, Path=IsEnabled, Converter={StaticResource InverseBoolConvert}}"
     materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding ElementName=PingButton, Path=IsEnabled, Converter={StaticResource InverseBoolConvert}}"/>
-        <DataGrid x:Name="PingDataGrid"  Margin="0,30,0,0" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" ColumnWidth="*" CanUserAddRows="False" >
+        <DataGrid x:Name="PingDataGrid"  Margin="0,30,0,0" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" ColumnWidth="*" CanUserAddRows="False" 
+                  ItemsSource="{Binding}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="监测点" Binding="{Binding LocalName}" />
-                <DataGridTextColumn Header="响应IP" Binding="{Binding Ip}" />
-                <DataGridTextColumn Header="IP归属地" Binding="{Binding IpLocal}" />
-                <DataGridTextColumn Header="响应时间" Binding="{Binding AnswerTime}" />
-                <DataGridTextColumn Header="本地响应时间" Binding="{Binding LocalAnswerTime}" />
-                <DataGridTextColumn Header="TTL" Binding="{Binding AnswerTtl}" />
+                <DataGridTemplateColumn Header="监测点">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding LocalName}" ToolTip="{Binding LocalName}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="响应IP">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Ip}" ToolTip="{Binding Ip}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="IP归属地">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding IpLocal}" ToolTip="{Binding IpLocal}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="响应时间" SortMemberPath="AnswerTime">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding AnswerTime}" ToolTip="{Binding AnswerTime}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="本地响应时间" SortMemberPath="LocalAnswerTime">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding LocalAnswerTime}" ToolTip="{Binding LocalAnswerTime}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="本地TCP/IP" SortMemberPath="TcpIpResultTip">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding TcpIpResult}" ToolTip="{Binding TcpIpResultTip}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="TTL" SortMemberPath="AnswerTtl">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding AnswerTtl}" ToolTip="{Binding AnswerTtl}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu StaysOpen="true">
@@ -42,13 +86,6 @@
                     <MenuItem Header="仅复制 IP" Click="CopyIpClick" />
                 </ContextMenu>
             </DataGrid.ContextMenu>
-            <!--<ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="更新HOSTS" />
-                    <MenuItem Header="复制ip_domain" />
-                    <MenuItem Header="仅复制ip"  />
-                </ContextMenu>
-            </ListView.ContextMenu>-->
 
         </DataGrid>
 

@@ -98,6 +98,7 @@
     <Compile Include="Domain\NotifyPropertyChangedExtension.cs" />
     <Compile Include="Lib\Hosts.cs" />
     <Compile Include="Lib\HttpHelper.cs" />
+    <Compile Include="Lib\Utils.cs" />
     <Compile Include="Model\HostsData.cs" />
     <Compile Include="Model\HtmlSearch.cs" />
     <Compile Include="Model\PingData.cs" />

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Flurl;
@@ -26,6 +27,19 @@ namespace WPF_Best_Hosts.Lib
                     .PostUrlEncodedAsync(formData)
                     .ReceiveString();
                 return responseJson.Result;
+        }
+
+        public static void TcpIpTest(string ip, string host, out int timeConsume, out int dSize)
+        {
+            var start = DateTime.UtcNow;
+            var test = $"http://{ip}".WithHeaders(new
+            {
+                User_Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
+                Host = host
+            }).GetStringAsync();
+            var test2 = test.Result;
+            timeConsume = (DateTime.UtcNow - start).Milliseconds;
+            dSize = test2.Length;
         }
     }
 }
