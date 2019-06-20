@@ -11,81 +11,172 @@ using System.Windows.Data;
 
 namespace WPF_Best_Hosts.Lib
 {
-
-    public interface ICustomSorter : IComparer
+    // https://stackoverflow.com/questions/18122751/wpf-datagrid-customsort-for-each-column/18218963#18218963
+    public static class DataGridSort
     {
-        ListSortDirection SortDirection { get; set; }
-    }
+        public static readonly DependencyProperty ComparerProperty = DependencyProperty.RegisterAttached(
+            "Comparer",
+            typeof(IComparer),
+            typeof(DataGridSort),
+            new PropertyMetadata(
+                default(IComparer),
+                OnComparerChanged));
 
-    public class CustomSortBehaviour
-    {
-        public static readonly DependencyProperty CustomSorterProperty =
-            DependencyProperty.RegisterAttached("CustomSorter", typeof(ICustomSorter), typeof(CustomSortBehaviour));
+        private static readonly DependencyProperty ColumnComparerProperty = DependencyProperty.RegisterAttached(
+            "ColumnComparer",
+            typeof(ColumnComparer),
+            typeof(DataGridSort),
+            new PropertyMetadata(default(ColumnComparer)));
 
-        public static ICustomSorter GetCustomSorter(DataGridColumn gridColumn)
+        private static readonly DependencyProperty PreviousComparerProperty = DependencyProperty.RegisterAttached(
+            "PreviousComparer",
+            typeof(IComparer),
+            typeof(DataGridSort),
+            new PropertyMetadata(default(IComparer)));
+
+        public static readonly DependencyProperty UseCustomSortProperty = DependencyProperty.RegisterAttached(
+            "UseCustomSort",
+            typeof(bool),
+            typeof(DataGridSort),
+            new PropertyMetadata(default(bool), OnUseCustomSortChanged));
+
+        public static void SetComparer(DataGridColumn element, IComparer value)
         {
-            return (ICustomSorter)gridColumn.GetValue(CustomSorterProperty);
+            element.SetValue(ComparerProperty, value);
         }
 
-        public static void SetCustomSorter(DataGridColumn gridColumn, ICustomSorter value)
+        public static IComparer GetComparer(DataGridColumn element)
         {
-            gridColumn.SetValue(CustomSorterProperty, value);
+            return (IComparer)element.GetValue(ComparerProperty);
         }
 
-        public static readonly DependencyProperty AllowCustomSortProperty =
-            DependencyProperty.RegisterAttached("AllowCustomSort", typeof(bool),
-            typeof(CustomSortBehaviour), new UIPropertyMetadata(false, OnAllowCustomSortChanged));
-
-        public static bool GetAllowCustomSort(DataGrid grid)
+        public static void SetUseCustomSort(DependencyObject element, bool value)
         {
-            return (bool)grid.GetValue(AllowCustomSortProperty);
+            element.SetValue(UseCustomSortProperty, value);
         }
 
-        public static void SetAllowCustomSort(DataGrid grid, bool value)
+        public static bool GetUseCustomSort(DependencyObject element)
         {
-            grid.SetValue(AllowCustomSortProperty, value);
+            return (bool)element.GetValue(UseCustomSortProperty);
         }
 
-        private static void OnAllowCustomSortChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnComparerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var existing = d as DataGrid;
-            if (existing == null) return;
+            var column = (DataGridColumn)d;
+            var columnComparer = new ColumnComparer((IComparer)e.NewValue, column);
+            column.SetValue(ColumnComparerProperty, columnComparer);
+        }
 
-            var oldAllow = (bool)e.OldValue;
-            var newAllow = (bool)e.NewValue;
-
-            if (!oldAllow && newAllow)
+        private static void OnUseCustomSortChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var dataGrid = (DataGrid)d;
+            if ((bool)e.NewValue)
             {
-                existing.Sorting += HandleCustomSorting;
+                WeakEventManager<DataGrid, DataGridSortingEventArgs>.AddHandler(dataGrid, nameof(dataGrid.Sorting), OnDataGridSorting);
             }
             else
             {
-                existing.Sorting -= HandleCustomSorting;
+                WeakEventManager<DataGrid, DataGridSortingEventArgs>.RemoveHandler(dataGrid, nameof(dataGrid.Sorting), OnDataGridSorting);
             }
         }
 
-        private static void HandleCustomSorting(object sender, DataGridSortingEventArgs e)
+        private static void OnDataGridSorting(object sender, DataGridSortingEventArgs e)
         {
-            var dataGrid = sender as DataGrid;
-            if (dataGrid == null || !GetAllowCustomSort(dataGrid)) return;
+            var column = e.Column;
+            var columnComparer = (ColumnComparer)column.GetValue(ColumnComparerProperty);
+            var dataGrid = (DataGrid)sender;
+            var view = CollectionViewSource.GetDefaultView(dataGrid.ItemsSource) as ListCollectionView;
+            if (view == null)
+            {
+                return;
+            }
+            if (columnComparer == null)
+            {
+                view.CustomSort = (IComparer)dataGrid.GetValue(PreviousComparerProperty);
+            }
+            else
+            {
+                if (!(view.CustomSort is ColumnComparer))
+                {
+                    dataGrid.SetValue(PreviousComparerProperty, view.CustomSort);
+                }
 
-            var listColView = dataGrid.ItemsSource as ListCollectionView;
-            if (listColView == null)
-                throw new Exception("The DataGrid's ItemsSource property must be of type, ListCollectionView");
+                switch (column.SortDirection)
+                {
+                    case ListSortDirection.Ascending:
+                        column.SortDirection = ListSortDirection.Descending;
+                        view.CustomSort = columnComparer.Descending;
+                        break;
+                    case null:
+                    case ListSortDirection.Descending:
+                        column.SortDirection = ListSortDirection.Ascending;
+                        view.CustomSort = columnComparer.Ascending;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
 
-            // Sanity check
-            var sorter = GetCustomSorter(e.Column);
-            if (sorter == null) return;
+                e.Handled = true;
+            }
+        }
 
-            // The guts.
-            e.Handled = true;
+        private class ColumnComparer : IComparer
+        {
+            private readonly IComparer valueComparer;
+            private readonly DataGridColumn column;
+            private readonly InvertedComparer inverted;
 
-            var direction = (e.Column.SortDirection != ListSortDirection.Ascending)
-                                ? ListSortDirection.Ascending
-                                : ListSortDirection.Descending;
+            public ColumnComparer(IComparer valueComparer, DataGridColumn column)
+            {
+                this.valueComparer = valueComparer;
+                this.column = column;
+                inverted = new InvertedComparer(this);
+            }
 
-            e.Column.SortDirection = sorter.SortDirection = direction;
-            listColView.CustomSort = sorter;
+            public IComparer Ascending => this;
+
+            public IComparer Descending => inverted;
+
+            int IComparer.Compare(object x, object y)
+            {
+                if (x == y)
+                {
+                    return 0;
+                }
+
+                if (x == null)
+                {
+                    return -1;
+                }
+
+                if (y == null)
+                {
+                    return 1;
+                }
+
+                // this can perhaps be a bit slow
+                // Not adding caching yet.
+                var xProp = x.GetType().GetProperty(column.SortMemberPath);
+                var xValue = xProp.GetValue(x);
+                var yProp = x.GetType().GetProperty(column.SortMemberPath);
+                var yValue = yProp.GetValue(y);
+                return valueComparer.Compare(xValue, yValue);
+            }
+
+            private class InvertedComparer : IComparer
+            {
+                private readonly IComparer comparer;
+
+                public InvertedComparer(IComparer comparer)
+                {
+                    this.comparer = comparer;
+                }
+
+                public int Compare(object x, object y)
+                {
+                    return comparer.Compare(y, x);
+                }
+            }
         }
     }
 }

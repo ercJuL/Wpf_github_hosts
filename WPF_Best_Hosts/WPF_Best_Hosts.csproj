@@ -96,6 +96,7 @@
     <Compile Include="Domain\DocumentationLinkType.cs" />
     <Compile Include="Domain\MainWindowViewModel.cs" />
     <Compile Include="Domain\NotifyPropertyChangedExtension.cs" />
+    <Compile Include="Behaviour\CustomSortBehaviour.cs" />
     <Compile Include="Lib\Hosts.cs" />
     <Compile Include="Lib\HttpHelper.cs" />
     <Compile Include="Lib\Utils.cs" />

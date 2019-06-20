@@ -36,6 +36,7 @@ namespace WPF_Best_Hosts.View
         public IPTest()
         {
             InitializeComponent();
+            PingDataList.cus
         }
 
         private async void PingButton_OnClick(object sender, RoutedEventArgs e)

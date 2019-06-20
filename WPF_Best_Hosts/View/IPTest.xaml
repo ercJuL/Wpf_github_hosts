@@ -11,6 +11,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <conver:InverseBoolConvert x:Key="InverseBoolConvert"/>
+        <conver:MyComparer x:Key="MyComparer">
     </UserControl.Resources>
     <Grid>
         <Label Content="选择测试域名" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Margin="0 3 0 0" />
