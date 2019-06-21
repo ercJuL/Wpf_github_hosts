@@ -11,13 +11,13 @@ namespace WPF_Best_Hosts.Model
 {
     public class PingData : INotifyPropertyChanged
     {
-        private string _localName;
-        private string _ip;
-        private string _ipLocal;
-        private string _answerTime;
-        private string _localAnswerTime;
-        private string _answerTtl;
-        private string _localAnswerTtl;
+        private string _localName="";
+        private string _ip = "";
+        private string _ipLocal = "";
+        private string _answerTime = "";
+        private string _localAnswerTime = "";
+        private string _answerTtl = "";
+        private string _localAnswerTtl = "";
         private int _timeConsume;
         private int _dSize;
         private string _tcpIpResult;
@@ -106,8 +106,12 @@ namespace WPF_Best_Hosts.Model
 
         public string TcpIpResult
         {
-            get => $"{Utils.HumanReadableByteCount(DSize / TimeConsume * 1000, false)}/s";
-            set => _tcpIpResult = value;
+            get => _tcpIpResult;
+            set
+            {
+                _tcpIpResult = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TcpIpResult"));
+            }
         }
 
         public string TcpIpResultTip => $"下载{Utils.HumanReadableByteCount(DSize, false)}\n共耗时{TimeConsume}毫秒";
@@ -117,8 +121,9 @@ namespace WPF_Best_Hosts.Model
             set
             {
                 _timeConsume = value;
-                if (_dSize > 0)
+                if (_dSize > 0 && _timeConsume > 0)
                 {
+                    _tcpIpResult = $"{Utils.HumanReadableByteCount(DSize / TimeConsume * 1000, false)}/s";
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TcpIpResult"));
                 }
             }
@@ -130,8 +135,9 @@ namespace WPF_Best_Hosts.Model
             set
             {
                 _dSize = value;
-                if (_timeConsume > 0)
+                if (_timeConsume > 0 && _dSize > 0)
                 {
+                    _tcpIpResult = $"{Utils.HumanReadableByteCount(DSize / TimeConsume * 1000, false)}/s";
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TcpIpResult"));
                 }
             }

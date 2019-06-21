@@ -86,6 +86,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Behaviour\WebSpeedComparer.cs" />
+    <Compile Include="Behaviour\ResponseComparer.cs" />
     <Compile Include="Converter\InverseBoolConvert.cs" />
     <Compile Include="Domain\AnotherCommandImplementation.cs" />
     <Compile Include="Domain\DemoItem.cs" />
@@ -96,7 +98,7 @@
     <Compile Include="Domain\DocumentationLinkType.cs" />
     <Compile Include="Domain\MainWindowViewModel.cs" />
     <Compile Include="Domain\NotifyPropertyChangedExtension.cs" />
-    <Compile Include="Behaviour\CustomSortBehaviour.cs" />
+    <Compile Include="Behaviour\DataGridSortBehavior.cs" />
     <Compile Include="Lib\Hosts.cs" />
     <Compile Include="Lib\HttpHelper.cs" />
     <Compile Include="Lib\Utils.cs" />

@@ -36,7 +36,6 @@ namespace WPF_Best_Hosts.View
         public IPTest()
         {
             InitializeComponent();
-            PingDataList.cus
         }
 
         private async void PingButton_OnClick(object sender, RoutedEventArgs e)
@@ -86,10 +85,10 @@ namespace WPF_Best_Hosts.View
             var updateDataParams = inObject as UpdateDataParams;
             var changedata = PingDataList.First(u => u.LocalGuid == updateDataParams.GuidLocalKey);
 
-            changedata.Ip = "loding...";
-            changedata.IpLocal = "loding...";
-            changedata.AnswerTime = "loding...";
-            changedata.AnswerTtl = "loding...";
+            changedata.Ip = "loading...";
+            changedata.IpLocal = "loading...";
+            changedata.AnswerTime = "loading...";
+            changedata.AnswerTtl = "loading...";
             try
             {
                 var response = HttpHelper.GetPingDataTask("http://ping.chinaz.com/", "iframe.ashx", new { guid = updateDataParams.GuidLocalKey, host = updateDataParams.Domain, ishost = 0, encode = updateDataParams.Encode, checktype = 0 });
@@ -119,6 +118,7 @@ namespace WPF_Best_Hosts.View
             changedata.AnswerTime = "超时";
             changedata.LocalAnswerTime = "超时";
             changedata.AnswerTtl = "超时";
+            changedata.TcpIpResult = "超时";
             return false;
         }
 
@@ -130,6 +130,11 @@ namespace WPF_Best_Hosts.View
             {
                 foreach (var pingIp in pingList.Where(u => u != "超时"))
                 {
+                    foreach (var pingData in PingDataList.Where(u=>u.Ip==pingIp))
+                    {
+                        pingData.LocalAnswerTime = "loading...";
+                        pingData.TcpIpResult = "loading...";
+                    }
                     var pingStatus = ping.Send(pingIp);
                     HttpHelper.TcpIpTest(pingIp, host, out var timeConsume, out var dSize);
                     PingDataList.Where(u => u.Ip == pingIp).ToList().ForEach(u =>

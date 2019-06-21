@@ -8,10 +8,12 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              xmlns:conver="clr-namespace:WPF_Best_Hosts.Converter"
+             xmlns:behaviour="clr-namespace:WPF_Best_Hosts.Behaviour"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <conver:InverseBoolConvert x:Key="InverseBoolConvert"/>
-        <conver:MyComparer x:Key="MyComparer">
+        <behaviour:ResponseComparer x:Key="ResponseComparer" />
+        <behaviour:WebSpeedComparer x:Key="WebSpeedComparer"/>
     </UserControl.Resources>
     <Grid>
         <Label Content="选择测试域名" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Margin="0 3 0 0" />
@@ -28,7 +30,7 @@
     materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding ElementName=PingButton, Path=IsEnabled, Converter={StaticResource InverseBoolConvert}}"
     materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding ElementName=PingButton, Path=IsEnabled, Converter={StaticResource InverseBoolConvert}}"/>
         <DataGrid x:Name="PingDataGrid"  Margin="0,30,0,0" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" ColumnWidth="*" CanUserAddRows="False" 
-                  ItemsSource="{Binding}">
+                  ItemsSource="{Binding}" behaviour:DataGridSortBehavior.AllowCustomSort="True">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="监测点">
                     <DataGridTemplateColumn.CellTemplate>
@@ -51,28 +53,28 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="响应时间" SortMemberPath="AnswerTime">
+                <DataGridTemplateColumn Header="响应时间" SortMemberPath="AnswerTime" behaviour:DataGridSortBehavior.Sorter="{StaticResource ResponseComparer}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding AnswerTime}" ToolTip="{Binding AnswerTime}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="本地响应时间" SortMemberPath="LocalAnswerTime">
+                <DataGridTemplateColumn Header="本地响应时间" SortMemberPath="LocalAnswerTime" behaviour:DataGridSortBehavior.Sorter="{StaticResource ResponseComparer}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding LocalAnswerTime}" ToolTip="{Binding LocalAnswerTime}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="本地TCP/IP" SortMemberPath="TcpIpResultTip">
+                <DataGridTemplateColumn Header="本地TCP/IP" SortMemberPath="TcpIpResult" behaviour:DataGridSortBehavior.Sorter="{StaticResource WebSpeedComparer}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding TcpIpResult}" ToolTip="{Binding TcpIpResultTip}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="TTL" SortMemberPath="AnswerTtl">
+                <DataGridTemplateColumn Header="TTL" SortMemberPath="AnswerTtl" behaviour:DataGridSortBehavior.Sorter="{StaticResource ResponseComparer}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding AnswerTtl}" ToolTip="{Binding AnswerTtl}"/>
