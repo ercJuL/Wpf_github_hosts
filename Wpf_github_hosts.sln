@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wpf_github_hosts", "Wpf_git
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF_Best_Hosts", "WPF_Best_Hosts\WPF_Best_Hosts.csproj", "{77476A58-9274-4963-A2EF-5451CF6CA210}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErcTools", "ErcTools\ErcTools.csproj", "{4A39B7C9-4CAD-46E6-8623-D380C8EE9150}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{77476A58-9274-4963-A2EF-5451CF6CA210}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77476A58-9274-4963-A2EF-5451CF6CA210}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77476A58-9274-4963-A2EF-5451CF6CA210}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A39B7C9-4CAD-46E6-8623-D380C8EE9150}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A39B7C9-4CAD-46E6-8623-D380C8EE9150}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A39B7C9-4CAD-46E6-8623-D380C8EE9150}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A39B7C9-4CAD-46E6-8623-D380C8EE9150}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
