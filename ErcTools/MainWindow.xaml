@@ -30,7 +30,7 @@
                                     DockPanel.Dock="Top"
                                     HorizontalAlignment="Right" Margin="16"
                                     IsChecked="{Binding ElementName=MenuToggleButton, Path=IsChecked, Mode=TwoWay}" />
-                <ListBox x:Name="DemoItemsListBox" Margin="0 16 0 16" SelectedIndex="0"
+                <!--<ListBox x:Name="DemoItemsListBox" Margin="0 16 0 16" SelectedIndex="0"
                              ItemsSource="{Binding DemoItems}"
                              PreviewMouseLeftButtonUp="UIElement_OnPreviewMouseLeftButtonUp">
                     <ListBox.ItemTemplate>
@@ -38,7 +38,7 @@
                             <TextBlock Text="{Binding Name}" Margin="32 32 32 32" />
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                </ListBox>
+                </ListBox>-->
             </DockPanel>
         </materialDesign:DrawerHost.LeftDrawerContent>
         <DockPanel>
@@ -48,12 +48,8 @@
 
                     <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}" IsChecked="False"
                                         x:Name="MenuToggleButton"/>
-                    <Button x:Name="CloseButton" DockPanel.Dock="Right" Click="CloseButton_OnClick"
-                        ToolTip="关闭窗口" Background="{x:Null}" BorderBrush="{x:Null}">
-                        <materialDesign:PackIcon
-                            Kind="WindowClose"
-                            Height="30"
-                            Width="24" />
+                    <Button x:Name="CloseButton" DockPanel.Dock="Right" Command="{Binding Path=CloseWindowsCommand}" ToolTip="关闭窗口" Background="{x:Null}" BorderBrush="{x:Null}">
+                        <materialDesign:PackIcon Kind="WindowClose" Height="30" Width="24" />
                     </Button>
                     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22">最快节点测试工具</TextBlock>
                 </DockPanel>
