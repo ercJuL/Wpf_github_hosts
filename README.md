@@ -1,6 +1,14 @@
+> 别fork, 别start了, 已经停止开发了  
+> 相关加速方法  
+> https://steampp.net/  
+> https://greasyfork.org/zh-CN/scripts/412245-github-%E5%A2%9E%E5%BC%BA-%E9%AB%98%E9%80%9F%E4%B8%8B%E8%BD%BD  
+> 本项目原理： https://zhuanlan.zhihu.com/p/107334179  
+> https://www.bilibili.com/read/cv10607526/  
+
+
 # **Wpf_github_hosts**  
 
-> 明年一定完成
+> 明年（也）一定完（不）成（:cry:）
 
 解决访问GitHub慢的问题
 
